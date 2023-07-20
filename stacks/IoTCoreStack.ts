@@ -1,6 +1,7 @@
 import { StackContext, Api } from "sst/constructs";
 import { 
   Effect, 
+  PolicyDocument, 
   PolicyStatement, 
   Role, 
   ServicePrincipal 
@@ -24,8 +25,11 @@ export function API({ stack }: StackContext) {
   })
   iotRole.addToPolicy(iotPolicyStatement)
 
+  const iotPolicyDocument = new PolicyDocument({})
+  iotPolicyDocument.addStatements(iotPolicyStatement)
+
   const ioTPolicy = new CfnPolicy(stack, 'MyCfnPolicy', {
-    policyDocument: iotPolicyStatement,
+    policyDocument: iotPolicyDocument,
     policyName: 'IoTPicoPolicy',
   });
 
