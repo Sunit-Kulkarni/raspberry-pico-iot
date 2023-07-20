@@ -1,4 +1,6 @@
-import { StackContext, Api, EventBus } from "sst/constructs";
+import { StackContext, Api, EventBus, Stack } from "sst/constructs";
+import { Effect, Policy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { CfnThing } from 'aws-cdk-lib/aws-iot';
 
 export function API({ stack }: StackContext) {
   const bus = new EventBus(stack, "bus", {
@@ -6,6 +8,33 @@ export function API({ stack }: StackContext) {
       retries: 10,
     },
   });
+
+  const iotPolicyStatement = new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'iot:Connect', 
+      'iot:Publish', 
+      'iot:Subscribe', 
+      'iot:Receive'
+    ],
+    resources: ["*"]
+  })
+  // const iotPolicy = new Policy(this, 'IoTPolicy')
+  // iotPolicy.addStatements(iotPolicyStatement)
+
+  const iotRole = new Role(this, "IoTRole", {
+    assumedBy: new ServicePrincipal('iot.amazonaws.com'),
+  })
+  iotRole.addToPolicy(iotPolicyStatement)
+
+  const iotThing = new CfnThing(this, "MyIotThing", {
+    thingName: "MyRaspberryPi",
+    attributePayload: {
+      attributes: {
+        RoleArn: iotRole.roleArn,
+      }
+    },
+  })
 
   const api = new Api(stack, "api", {
     defaults: {
@@ -26,5 +55,6 @@ export function API({ stack }: StackContext) {
 
   stack.addOutputs({
     ApiEndpoint: api.url,
+    ThingName: iotThing.thingName
   });
 }
