@@ -1,5 +1,10 @@
-import { StackContext, Api, EventBus, Stack } from "sst/constructs";
-import { Effect, Policy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { StackContext, Api } from "sst/constructs";
+import { 
+  Effect, 
+  PolicyStatement, 
+  Role, 
+  ServicePrincipal 
+} from "aws-cdk-lib/aws-iam";
 import { CfnThing } from 'aws-cdk-lib/aws-iot';
 
 export function API({ stack }: StackContext) {
@@ -13,15 +18,13 @@ export function API({ stack }: StackContext) {
     ],
     resources: ["*"]
   })
-  // const iotPolicy = new Policy(this, 'IoTPolicy')
-  // iotPolicy.addStatements(iotPolicyStatement)
 
-  const iotRole = new Role(this, "IoTRole", {
+  const iotRole = new Role(stack, "IoTRole", {
     assumedBy: new ServicePrincipal('iot.amazonaws.com'),
   })
   iotRole.addToPolicy(iotPolicyStatement)
 
-  const iotThing = new CfnThing(this, "MyIotThing", {
+  const iotThing = new CfnThing(stack, "MyIotThing", {
     thingName: "MyRaspberryPi",
     attributePayload: {
       attributes: {
