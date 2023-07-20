@@ -5,7 +5,7 @@ import {
   Role, 
   ServicePrincipal 
 } from "aws-cdk-lib/aws-iam";
-import { CfnThing } from 'aws-cdk-lib/aws-iot';
+import { CfnPolicy, CfnThing } from 'aws-cdk-lib/aws-iot';
 
 export function API({ stack }: StackContext) {
   const iotPolicyStatement = new PolicyStatement({
@@ -24,11 +24,17 @@ export function API({ stack }: StackContext) {
   })
   iotRole.addToPolicy(iotPolicyStatement)
 
+  const ioTPolicy = new CfnPolicy(stack, 'MyCfnPolicy', {
+    policyDocument: iotPolicyStatement,
+    policyName: 'IoTPicoPolicy',
+  });
+
   const iotThing = new CfnThing(stack, "MyIotThing", {
     thingName: "MyRaspberryPi",
     attributePayload: {
       attributes: {
         RoleArn: iotRole.roleArn,
+        PolicyArn: ioTPolicy.attrArn
       }
     },
   })
