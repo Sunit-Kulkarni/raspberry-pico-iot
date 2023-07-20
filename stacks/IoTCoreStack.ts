@@ -3,12 +3,6 @@ import { Effect, Policy, PolicyDocument, PolicyStatement, Role, ServicePrincipal
 import { CfnThing } from 'aws-cdk-lib/aws-iot';
 
 export function API({ stack }: StackContext) {
-  const bus = new EventBus(stack, "bus", {
-    defaults: {
-      retries: 10,
-    },
-  });
-
   const iotPolicyStatement = new PolicyStatement({
     effect: Effect.ALLOW,
     actions: [
@@ -37,20 +31,10 @@ export function API({ stack }: StackContext) {
   })
 
   const api = new Api(stack, "api", {
-    defaults: {
-      function: {
-        bind: [bus],
-      },
-    },
+    customDomain: "pico-iot-dev.sunitkulkarni.com",
     routes: {
       "GET /": "packages/functions/src/lambda.handler",
-      "GET /todo": "packages/functions/src/todo.list",
-      "POST /todo": "packages/functions/src/todo.create",
     },
-  });
-
-  bus.subscribe("todo.created", {
-    handler: "packages/functions/src/events/todo-created.handler",
   });
 
   stack.addOutputs({
