@@ -28,7 +28,7 @@ export function API({ stack }: StackContext) {
   const iotPolicyDocument = new PolicyDocument({})
   iotPolicyDocument.addStatements(iotPolicyStatement)
 
-  const ioTPolicy = new CfnPolicy(stack, 'MyCfnPolicy', {
+  const ioTPolicy = new CfnPolicy(stack, 'MyIoTPolicy', {
     policyDocument: iotPolicyDocument,
     policyName: 'IoTPicoPolicy',
   });
